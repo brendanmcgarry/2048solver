@@ -100,48 +100,32 @@ int Player::guessMove() {
 	int trials[4];
 	int trialsCtr = 0;
 
-	int preTrials[n];
-	int preTrialsCtr = 0;
-
-	int moves[n];
-	int movesCtr = 0;
-
 	saveGame = game;
 	if (!game.over) {
 		for (int i = 0; i < 4; i++) {
-			preTrialsCtr = 0;
-			movesCtr = 0;
-			for (int j = 0; j < n; j++) {
-				testMoves = 0;
-				if (game.move(i, true)) {
-					while (!game.over && testMoves < 100)
-						if (game.move(distribution(generator), true))
-							testMoves++;
-
-					preTrials[preTrialsCtr++] = game.score - baseScore;
-					moves[movesCtr++] = testMoves;
-				}
-				else {
-					preTrials[preTrialsCtr++] = 0;
-					moves[movesCtr++] = 0;
-				}
+			int avg = 0;
+			if (game.move(i, false)) {
+				avg = randomSimStrength(game, n, 100);
 				game = saveGame;
 			}
-
-			int avg = 0;
-			for (int j = 0; j < n; j++) {
-				avg += preTrials[j];
-			}
-			avg /= n;
 
 			trials[trialsCtr++] = avg;
 		}
 
 		int max = 0;
 		for (int d = 0; d < 4; d++) {
-			if (trials[d] > max && game.move(d, true)) {
-				max = trials[d];
-				direction = d;
+			if (game.move(d, true)) {
+				if (trials[d] > max) {
+					max = trials[d];
+					direction = d;
+				}
+				// If two moves are equal, randomly choose one to prevent movelocking
+				else if (trials[d] == max) {
+					if (distribution(generator) > 1) {
+						max = trials[d];
+						direction = d;
+					}
+				}
 			}
 			game = saveGame;
 		}
@@ -249,9 +233,13 @@ int Player::randomSimStrength(GameManager baseGame, int width, int depth) {
 
 	GameManager game = baseGame;
 	for (int i = 0; i < width; i++) {
+		game.addRandomTile();
+		if (!game.movesAvailable())
+			game.over = true;
+
 		while (!game.over && testMoves < depth) {
-			game.move(distribution(generator), true);
-			testMoves++;
+			if (game.move(distribution(generator), true))
+				testMoves++;
 		}
 
 		scores.push_back(game.score - baseScore);
@@ -261,17 +249,17 @@ int Player::randomSimStrength(GameManager baseGame, int width, int depth) {
 	}
 
 	int avg = 0;
-	for (auto&& score : scores)
+	for (auto score : scores)
 		avg += score;
 
 	avg /= width;
 
-	int numFails = 0;
+	/*int numFails = 0;
 	for (auto&& moves : numsOfMoves)
-		if (moves < 4)
-			numFails++;
+	if (moves < 4)
+	numFails++;
 
-	avg *= (1 + width - numFails) / (1 + width);
+	avg *= (1 + width - numFails) / (1 + width);*/
 
 	return avg;
 }

@@ -1,5 +1,0 @@
-﻿  Source.cpp
-c:\users\brendan\documents\visual studio 2015\projects\2048solver\2048solver\source.cpp(42): warning C4018: '<': signed/unsigned mismatch
-c:\users\brendan\documents\visual studio 2015\projects\2048solver\2048solver\source.cpp(54): warning C4551: function call missing argument list
-  2048solver.vcxproj -> C:\Users\Brendan\Documents\Visual Studio 2015\Projects\2048solver\Debug\2048solver.exe
-  2048solver.vcxproj -> C:\Users\Brendan\Documents\Visual Studio 2015\Projects\2048solver\Debug\2048solver.pdb (Full PDB)
