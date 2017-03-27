@@ -25,6 +25,7 @@ public:
 	void sequenceMove();
 	int guessMove();
 	int predictMove();
+	int probMove(int, bool);
 	int randomSimStrength(GameManager, int, int);
 	~Player();
 };

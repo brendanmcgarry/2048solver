@@ -21,7 +21,8 @@ Player::Player(GameManager start) {
 void Player::start() {
 	GameManager baseGame = game;
 
-	cout << guessMove();
+	//cout << guessMove();
+	cout << probMove(3, true);
 	return;
 
 	int numGames = 0;
@@ -222,6 +223,84 @@ int Player::predictMove() {
 	game.move(direction, true);
 	numMoves++;
 	return direction;
+}
+
+int Player::probMove(int simHeight, bool root) {
+	GameManager save = game;
+	GameManager movedGame;
+
+	vector<int> moveStrength(4);
+
+	Position candidateTiles[N*N];
+	int numCandidateTiles;
+	vector<int> candidateStrengths2(16);
+	vector<int> candidateStrengths4(16);
+	int subscore;
+
+	uniform_int_distribution<int> distribution(0, 3);
+
+	if (!game.over) {
+		save = game;
+		for (int i = 0; i < 4; i++) {
+			if (!game.move(i, false))
+				moveStrength[i] = 0;
+			else {
+				if (simHeight == 0)
+					moveStrength[i] = game.score;
+				else {
+					movedGame = game;
+					numCandidateTiles = game.grid.availableCells(candidateTiles);
+
+					for (int j = 0; j < numCandidateTiles; j++) {
+						Tile tile2(candidateTiles[j], 2);
+						game.grid.insertTile(tile2);
+
+						if (!game.movesAvailable())
+							candidateStrengths2[j] = 0;
+						else
+							candidateStrengths2[j] = probMove(simHeight - 1, false);
+						game = movedGame;
+
+						Tile tile4(candidateTiles[j], 4);
+						game.grid.insertTile(tile4);
+
+						if (!game.movesAvailable())
+							candidateStrengths4[j] = 0;
+						else
+							candidateStrengths4[j] = probMove(simHeight - 1, false);
+						game = movedGame;
+					}
+					
+					int avg = 0;
+					for (int j = 0; j < numCandidateTiles; j++) {
+						avg += candidateStrengths2[j] * 0.9;
+						avg += candidateStrengths4[j] * 0.1;
+					}
+					avg /= numCandidateTiles;
+
+					moveStrength[i] = avg;
+
+					game = save;
+				}
+			}
+		}
+
+		int max = 0;
+		int direction = distribution(generator);
+		for (int i = 0; i < moveStrength.size(); i++) {
+			if (moveStrength[i] > max) {
+				max = moveStrength[i];
+				direction = i;
+			}
+		}
+		if (root)
+			return direction;
+		else
+			return max;
+	}
+	else {
+		return 0;
+	}
 }
 
 int Player::randomSimStrength(GameManager baseGame, int width, int depth) {
