@@ -12,18 +12,20 @@ int main(int argc, char* argv[]) {
 	int mtx[N][N];
 
 	// If one command-line argument is given (first is filename by default)
-	if (argc == 2) {
+	if (argc == 2 || argc == 3) {
 		getMatrixFromArgs(argv, mtx);
-		//printMatrix(mtx);
-		//cout << endl << endl;
 
 		Grid grid(N, mtx);
 		GameManager game(grid);
 		GameManager save;
 
 		Player player(game);
-
-		player.start();
+		if (argc == 3) {
+			int depth = (argv[2][0] - '0');
+			player.start(depth);
+		}
+		else
+			player.start();
 	}
 	else {
 		cout << "Wrong number of arguments. Please pass " << N*N

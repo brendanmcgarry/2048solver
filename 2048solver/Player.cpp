@@ -18,33 +18,16 @@ Player::Player(GameManager start) {
 	srand(time(NULL));
 }
 
-void Player::start() {
-	GameManager baseGame = game;
-
-	//cout << guessMove();
-	cout << probMove(3, true);
+void Player::start(int depth) {
+	cout << probMove(depth, true);
 	return;
+}
 
-	int numGames = 0;
-
-	//system("cls"); // OP
-
-	while (true) {
-		while (!game.over)
-			moveLoop();
-		numGames++;
-
-		//cout << "Game " << numGames << ": " << (game.won ? 1 : 0) << " (" << game.score << ", " << numMoves << ")" << endl; // OP
-
-		//system("cls"); // OP
-		//game.printGrid(); // OP
-		cout << endl << "GAME SCORE: " << game.score << endl;
-		cout << numMoves << endl;
-
-		numMoves = 0;
-		game = baseGame;
-		system("pause");
-	}
+void Player::start() {
+	//Position empties[N*N];
+	//int cellsOpen = game.grid.availableCells(empties);
+	//int depth = cellsOpen > 8 ? 3 : (cellsOpen > 5 ? 4 : 5);
+	start(3);
 }
 
 void Player::moveLoop() {
@@ -226,6 +209,8 @@ int Player::predictMove() {
 }
 
 int Player::probMove(int simHeight, bool root) {
+	numMoves++;
+
 	GameManager save = game;
 	GameManager movedGame;
 
@@ -293,8 +278,10 @@ int Player::probMove(int simHeight, bool root) {
 				direction = i;
 			}
 		}
-		if (root)
+		if (root) {
+			//cout << "NumFnCalls: " << numMoves << endl;
 			return direction;
+		}
 		else
 			return max;
 	}

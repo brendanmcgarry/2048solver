@@ -21,6 +21,7 @@ class Player {
 public:
 	Player(GameManager);
 	void start();
+	void start(int);
 	void moveLoop();
 	void sequenceMove();
 	int guessMove();
