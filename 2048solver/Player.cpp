@@ -118,113 +118,23 @@ int Player::guessMove() {
 	return direction;
 }
 
-int Player::predictMove() {
-	uniform_int_distribution<int> distribution(0, 3);
-
-	GameManager saveGame = game;
-	GameManager directionSave;
-
-	Position empties[N*N];
-	int numEmpties = 0;
-
-	int avgs[4];
-	int avgsCtr = 0;
-	int testMoves;
-
-	int direction = distribution(generator);
-
-	for (int i = 0; i < 4; i++) {
-
-		if (game.move(i, false)) {
-			numEmpties = game.grid.availableCells(empties);
-
-			int twos[N*N];
-			int fours[N*N];
-
-			int tileCtr = 0;
-			int baseScore = game.score;
-
-			directionSave = game;
-
-			for (int j = 0; j < numEmpties; j++) {
-				// spawn a 2: 90% weight
-				// then reload game
-				testMoves = 0;
-				Tile two(empties[j], 2);
-				game.grid.insertTile(two);
-
-				/*while (!game.over && testMoves < 40) {
-				game.move(distribution(generator), true);
-				testMoves++;
-				}
-
-				twos[tileCtr] = game.score - baseScore;*/
-				twos[tileCtr] = randomSimStrength(game, 20, 100);
-				game = directionSave;
-
-
-				// spawn a 4: 10% weight
-				// then reload game
-				testMoves = 0;
-				Tile four(empties[j], 4);
-				game.grid.insertTile(four);
-
-				/*while (!game.over && testMoves < 40) {
-				game.move(distribution(generator), true);
-				testMoves++;
-				}
-
-				fours[tileCtr++] = game.score - baseScore;*/
-				fours[tileCtr++] = randomSimStrength(game, 20, 100);
-				game = directionSave;
-			}
-
-			int avg = 0;
-
-			for (int j = 0; j < numEmpties; j++) {
-				avg += twos[j] * 0.9 + fours[j] * 0.1;
-			}
-
-			avg /= numEmpties;
-			avgs[avgsCtr++] = avg;
-
-			game = saveGame;
-		}
-		else {
-			avgs[avgsCtr++] = 0;
-		}
-	}
-
-	int max = 0;
-	for (int i = 0; i < 4; i++) {
-		if (avgs[i] > max) {
-			max = avgs[i];
-			direction = i;
-		}
-	}
-
-	game.move(direction, true);
-	numMoves++;
-	return direction;
-}
-
 int Player::probMove(int simHeight, bool root) {
 	numMoves++;
 
-	GameManager save = game;
-	GameManager movedGame;
-
-	vector<int> moveStrength(4);
-
-	Position candidateTiles[N*N];
-	int numCandidateTiles;
-	vector<int> candidateStrengths2(16);
-	vector<int> candidateStrengths4(16);
-	int subscore;
-
-	uniform_int_distribution<int> distribution(0, 3);
-
 	if (!game.over) {
+		GameManager save = game;
+		GameManager movedGame;
+
+		vector<int> moveStrength(4);
+
+		Position candidateTiles[N*N];
+		int numCandidateTiles;
+		vector<int> candidateStrengths2(16);
+		vector<int> candidateStrengths4(16);
+		int subscore;
+
+		uniform_int_distribution<int> distribution(0, 3);
+
 		save = game;
 		for (int i = 0; i < 4; i++) {
 			if (!game.move(i, false))
@@ -273,10 +183,11 @@ int Player::probMove(int simHeight, bool root) {
 		int max = 0;
 		int direction = distribution(generator);
 		for (int i = 0; i < moveStrength.size(); i++) {
-			if (moveStrength[i] > max) {
+			if (game.move(i, false) && moveStrength[i] > max) {
 				max = moveStrength[i];
 				direction = i;
 			}
+			game = save;
 		}
 		if (root) {
 			//cout << "NumFnCalls: " << numMoves << endl;
