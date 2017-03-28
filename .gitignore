@@ -1,3 +1,7 @@
 2048solver.VC.VC.opendb 
 2048solver.VC.db 
 testing-and-dev/
+Release/
+Debug/
+2048solver/Release/
+2048solver/Debug/
