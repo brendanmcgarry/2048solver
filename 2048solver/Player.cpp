@@ -19,7 +19,7 @@ Player::Player(GameManager start) {
 }
 
 void Player::start(int depth) {
-	cout << probMove(depth, true);
+	cout << probMove(depth, true, 0);
 	return;
 }
 
@@ -118,98 +118,12 @@ int Player::guessMove() {
 	return direction;
 }
 
-int Player::predictMove() {
-	uniform_int_distribution<int> distribution(0, 3);
-
-	GameManager saveGame = game;
-	GameManager directionSave;
-
-	Position empties[N*N];
-	int numEmpties = 0;
-
-	int avgs[4];
-	int avgsCtr = 0;
-	int testMoves;
-
-	int direction = distribution(generator);
-
-	for (int i = 0; i < 4; i++) {
-
-		if (game.move(i, false)) {
-			numEmpties = game.grid.availableCells(empties);
-
-			int twos[N*N];
-			int fours[N*N];
-
-			int tileCtr = 0;
-			int baseScore = game.score;
-
-			directionSave = game;
-
-			for (int j = 0; j < numEmpties; j++) {
-				// spawn a 2: 90% weight
-				// then reload game
-				testMoves = 0;
-				Tile two(empties[j], 2);
-				game.grid.insertTile(two);
-
-				/*while (!game.over && testMoves < 40) {
-				game.move(distribution(generator), true);
-				testMoves++;
-				}
-
-				twos[tileCtr] = game.score - baseScore;*/
-				twos[tileCtr] = randomSimStrength(game, 20, 100);
-				game = directionSave;
-
-
-				// spawn a 4: 10% weight
-				// then reload game
-				testMoves = 0;
-				Tile four(empties[j], 4);
-				game.grid.insertTile(four);
-
-				/*while (!game.over && testMoves < 40) {
-				game.move(distribution(generator), true);
-				testMoves++;
-				}
-
-				fours[tileCtr++] = game.score - baseScore;*/
-				fours[tileCtr++] = randomSimStrength(game, 20, 100);
-				game = directionSave;
-			}
-
-			int avg = 0;
-
-			for (int j = 0; j < numEmpties; j++) {
-				avg += twos[j] * 0.9 + fours[j] * 0.1;
-			}
-
-			avg /= numEmpties;
-			avgs[avgsCtr++] = avg;
-
-			game = saveGame;
-		}
-		else {
-			avgs[avgsCtr++] = 0;
-		}
-	}
-
-	int max = 0;
-	for (int i = 0; i < 4; i++) {
-		if (avgs[i] > max) {
-			max = avgs[i];
-			direction = i;
-		}
-	}
-
-	game.move(direction, true);
+int Player::probMove(int simHeight, bool root, int nodeNum) {
 	numMoves++;
-	return direction;
-}
-
-int Player::probMove(int simHeight, bool root) {
-	numMoves++;
+	cout << (std::string(3-simHeight, '\t')).c_str()
+		<< "h: " << simHeight << " "
+		<< "n: " << nodeNum << " "
+		<< "s: " << game.score << endl;
 
 	GameManager save = game;
 	GameManager movedGame;
@@ -243,7 +157,7 @@ int Player::probMove(int simHeight, bool root) {
 						if (!game.movesAvailable())
 							candidateStrengths2[j] = 0;
 						else
-							candidateStrengths2[j] = probMove(simHeight - 1, false);
+							candidateStrengths2[j] = probMove(simHeight - 1, false, j);
 						game = movedGame;
 
 						Tile tile4(candidateTiles[j], 4);
@@ -252,7 +166,7 @@ int Player::probMove(int simHeight, bool root) {
 						if (!game.movesAvailable())
 							candidateStrengths4[j] = 0;
 						else
-							candidateStrengths4[j] = probMove(simHeight - 1, false);
+							candidateStrengths4[j] = probMove(simHeight - 1, false, j+numCandidateTiles);
 						game = movedGame;
 					}
 					
