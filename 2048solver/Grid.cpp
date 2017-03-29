@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <time.h>
+#include <vector>
 #include "Grid.h"
 #include "Tile.h"
 
@@ -14,24 +15,23 @@ Grid::Grid(int s, int mtx[][N]) {
 }
 
 Position Grid::randomAvailableCell() {
-	Position empties[N*N];
-	int numEmpties;
+	std::vector<Position> empties;
 
-	numEmpties = availableCells(empties);
+	empties = availableCells();
 
 	srand(time(NULL));
-	return empties[rand() % numEmpties];
+	return empties[rand() % empties.size()];
 }
 
-int Grid::availableCells(Position empties[N*N]) {
-	int size = 0;
+std::vector<Position> Grid::availableCells() {
+	std::vector<Position> empties;
 	for (int y = 0; y < N; y++) {
 		for (int x = 0; x < N; x++) {
 			if (cells[y][x].value == 0)
-				empties[size++] = { x, y };
+				empties.push_back({ x, y });
 		}
 	}
-	return size;
+	return empties;
 }
 
 bool Grid::cellsAvailable() {

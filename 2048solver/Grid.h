@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "Header.h"
 #include "Tile.h"
 #include "Position.h"
@@ -8,7 +9,7 @@ class Grid {
 public:
 	Grid();
 	Grid(int, int[][N]);
-	int availableCells(Position[N*N]);
+	std::vector<Position> availableCells();
 	Position randomAvailableCell();
 	bool cellsAvailable();
 	bool cellAvailable(Position);

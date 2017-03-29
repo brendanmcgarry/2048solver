@@ -127,8 +127,7 @@ int Player::probMove(int simHeight, bool root) {
 
 		vector<int> moveStrength(4);
 
-		Position candidateTiles[N*N];
-		int numCandidateTiles;
+		vector<Position> candidateTiles;
 		vector<int> candidateStrengths2(16);
 		vector<int> candidateStrengths4(16);
 		int subscore;
@@ -144,9 +143,9 @@ int Player::probMove(int simHeight, bool root) {
 					moveStrength[i] = game.score;
 				else {
 					movedGame = game;
-					numCandidateTiles = game.grid.availableCells(candidateTiles);
+					candidateTiles = game.grid.availableCells();
 
-					for (int j = 0; j < numCandidateTiles; j++) {
+					for (int j = 0; j < candidateTiles.size(); j++) {
 						Tile tile2(candidateTiles[j], 2);
 						game.grid.insertTile(tile2);
 
@@ -167,11 +166,11 @@ int Player::probMove(int simHeight, bool root) {
 					}
 					
 					int avg = 0;
-					for (int j = 0; j < numCandidateTiles; j++) {
+					for (int j = 0; j < candidateTiles.size(); j++) {
 						avg += candidateStrengths2[j] * 0.9;
 						avg += candidateStrengths4[j] * 0.1;
 					}
-					avg /= numCandidateTiles;
+					avg /= candidateTiles.size();
 
 					moveStrength[i] = avg;
 

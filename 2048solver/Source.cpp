@@ -1,6 +1,5 @@
 #include <iostream>
 #include <windows.h>
-#include <vector>
 #include "GameManager.h"
 #include "Player.h"
 using namespace std;
@@ -8,16 +7,8 @@ using namespace std;
 void getMatrixFromArgs(char*[], int[][N]);
 void printMatrix(int[][N]);
 void printGrid(Grid);
-vector<int> receiveVector();
 
 int main(int argc, char* argv[]) {
-	vector<int> varct;
-	varct = receiveVector();
-	for (int i = 0; i < varct.size(); i++)
-		cout << varct[i] << ", ";
-	cout << endl;
-	system("pause");
-	return 0;
 	int mtx[N][N];
 
 	// If one command-line argument is given (first is filename by default)
@@ -84,12 +75,4 @@ void printGrid(Grid grid) {
 		}
 		cout << endl;
 	}
-}
-
-vector<int> receiveVector() {
-	vector<int> vect(5);
-	for (int i = 0; i < 5; i++) {
-		vect[i] = 11 - i;
-	}
-	return vect;
 }
