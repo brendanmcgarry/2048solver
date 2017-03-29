@@ -120,10 +120,10 @@ int Player::guessMove() {
 
 int Player::probMove(int simHeight, bool root, int nodeNum) {
 	numMoves++;
-	cout << (std::string(3-simHeight, '\t')).c_str()
+	/*cout << (std::string(3-simHeight, '\t')).c_str()
 		<< "h: " << simHeight << " "
 		<< "n: " << nodeNum << " "
-		<< "s: " << game.score << endl;
+		<< "s: " << game.score << endl;*/
 
 	GameManager save = game;
 	GameManager movedGame;
@@ -193,11 +193,17 @@ int Player::probMove(int simHeight, bool root, int nodeNum) {
 			}
 		}
 		if (root) {
-			//cout << "NumFnCalls: " << numMoves << endl;
+			cout << "Direction: " << direction << ", max: " << max << endl;
 			return direction;
 		}
-		else
+		else {
+			cout << (std::string(simHeight, '\t')).c_str()
+				<< "h: " << simHeight << " "
+				<< "n: " << nodeNum << " "
+				<< "s: " << game.score << " "
+				<< "max: " << max << endl;
 			return max;
+		}
 	}
 	else {
 		return 0;
